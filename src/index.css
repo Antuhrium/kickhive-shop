@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Unbounded:wght@200..900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --primary-color: rgba(168, 94, 173, 1);
+    --primary-color-30: rgba(168, 94, 173, 0.3);
+
+    --light-color: rgba(255, 255, 255, 1);
+    --light-color-15: rgba(255, 255, 255, 0.15);
+    --light-color-60: rgba(255, 255, 255, 0.6);
+
+    --dark-color: rgba(0, 0, 0, 1);
+    --dark-color-10: rgba(0, 0, 0, 0.1);
+    --dark-color-85: rgba(0, 0, 0, 0.85);
+
+    --card-image-shadow: 2px 2px 0px 0px rgba(168, 94, 173, 1);
+
+    --inter-font: "Inter", sans-serif;
+    --unbounded-font: "Unbounded", serif;
+}
+
+body {
+    background-color: var(--dark-color);
+    font-family: var(--unbounded-font);
+}
+
+.card-shadow {
+    box-shadow: var(--card-image-shadow);
+}
+
+.no-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.card-dark-bg::after {
+    content: "";
+    z-index: -10;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-color);
+    opacity: 0.2;
+}
+
+.menu-button {
+    @apply card-dark-bg after:rounded-full;
+
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--primary-color-30);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--primary-color);
+}
+
+.custom-bullet {
+    width: 8px;
+    height: 8px;
+    border-radius: 100px;
+    background: var(--light-color-15);
+
+    opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+    background: var(--primary-color);
+}
