@@ -7,5 +7,6 @@ export const getCatalog = async ({ offset = 0, limit = 50 }) => {
             limit,
         },
     });
-    return res.data;
+    return res.data.result;
 };
+

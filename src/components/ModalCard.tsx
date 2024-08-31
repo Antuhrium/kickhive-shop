@@ -4,25 +4,24 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css/pagination";
 
 import CartIcon from "../assets/svg/cart.svg";
+import { Product } from "../app/slices/catalogSlice";
+import { CartItem } from "../app/slices/cartSlice";
 
-interface ModalCardProps {
-    id: number;
-    image: string;
-    name: string;
-    price: number;
-    type: string;
-    season: string;
-    handleClick: (id: number) => void;
-    setModalCard: React.Dispatch<React.SetStateAction<number | null>>
+interface ModalCardProps extends Product {
+    handleClick: ({ uid, price, quantity, size, color }: CartItem) => void;
+    setModalCard: React.Dispatch<React.SetStateAction<string>>
 }
 
 const ModalCard: React.FC<ModalCardProps> = ({
-    id,
-    image,
     name,
-    type,
-    season,
     price,
+    season,
+    type_,
+    uid,
+    brand,
+    photos,
+    preview,
+    style,
     handleClick,
     setModalCard
 }) => {
@@ -52,7 +51,7 @@ const ModalCard: React.FC<ModalCardProps> = ({
 
     return (
         <>
-            <div className="fixed z-20 backdrop-blur-sm inset-0 bg-dark-color-10" onClick={() => setModalCard(null)} />
+            <div className="fixed z-20 backdrop-blur-sm inset-0 bg-dark-color-10" onClick={() => setModalCard("")} />
             <div className="fixed z-30 inset-x-[25px] top-1/2 -translate-y-1/2">
                 <div className="relative -mb-3">
                     <Swiper
@@ -67,8 +66,9 @@ const ModalCard: React.FC<ModalCardProps> = ({
                             },
                         }}
                     >
-                        {[1, 2, 3, 4, 5].map(() => (
+                        {[1, 2, 3, 4, 5].map((i) => (
                             <SwiperSlide
+                                key={i}
                                 className="bg-light-color rounded-[15px] border-b-2 border-primary-color max-h-[155px]"
                                 style={{
                                     display: "flex",
@@ -76,7 +76,7 @@ const ModalCard: React.FC<ModalCardProps> = ({
                                     justifyContent: "center",
                                 }}
                             >
-                                <img src={image} alt={name} />
+                                {/* <img src={image} alt={name} /> */}
                             </SwiperSlide>
                         ))}
                     </Swiper>
@@ -92,11 +92,12 @@ const ModalCard: React.FC<ModalCardProps> = ({
                         <div className="mt-[5px] flex items-center gap-1 flex-wrap">
                             {colors.map((item, index) => (
                                 <button
+                                    key={index}
                                     onClick={() => changeColorClick(index)}
                                     className={`min-w-[55px] min-h-[20px] flex items-center justify-center rounded-md
                                     text-[8px] leading-[10px] text-center font-normal ${
                                         color === index
-                                            ? "bg-primary-color text-dark-color"
+                                            ? "bg-primary-color text-light-color"
                                             : "bg-light-color-60 text-light-color-60"
                                     }`}
                                 >
@@ -112,11 +113,12 @@ const ModalCard: React.FC<ModalCardProps> = ({
                         <div className="mt-[5px] flex items-center gap-1 flex-wrap">
                             {sizes.map((item, index) => (
                                 <button
+                                    key={index}
                                     onClick={() => changeSizeClick(index)}
                                     className={`min-w-[55px] min-h-[20px] flex items-center justify-center rounded-md
                                     text-[8px] leading-[10px] text-center font-normal ${
                                         size === index
-                                            ? "bg-primary-color text-dark-color"
+                                            ? "bg-primary-color text-light-color"
                                             : "bg-light-color-60 text-light-color-60"
                                     }`}
                                 >
@@ -130,13 +132,13 @@ const ModalCard: React.FC<ModalCardProps> = ({
                             Описание
                         </span>
                         <div className="font-inter text-xs font-normal text-light-color-60">
-                            Тип: {type}
+                            Тип: {type_}
                         </div>
                         <div className="font-inter text-xs font-normal text-light-color-60">
                             Сезон: {season}
                         </div>
                         <div className="font-inter text-xs font-normal text-light-color-60">
-                            Стиль: Панк
+                            Стиль: {style}
                         </div>
                         <div className="font-inter text-xs font-normal text-light-color-60">
                             Высота каблука: Высокий каблук (5-8см)
@@ -151,13 +153,13 @@ const ModalCard: React.FC<ModalCardProps> = ({
                                 Стоимость:
                             </span>
                             <span className="text-primary-color text-[10px] font-semibold">
-                                15 999 ₽
+                                {price} ₽
                             </span>
                         </div>
                         <button
-                            onClick={() => handleClick(id)}
+                            onClick={() => handleClick({uid, price, quantity: 1, color: colors[color], size: sizes[size]})}
                             className="max-w-[160px] flex items-center justify-center gap-1 w-full py-2 mt-[5px]
-                            text-dark-color font-semibold text-[10px] bg-primary-color rounded-md"
+                            text-light-color font-semibold text-[10px] bg-primary-color rounded-md"
                         >
                             Заказать
                             <img src={CartIcon} alt="cart" />

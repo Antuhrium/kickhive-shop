@@ -1,14 +1,40 @@
 import React, { useState } from "react";
 import DeleteIcon from "../assets/svg/delete.svg";
+import { CartItem, addItem, clearItem, removeItem } from "../app/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../app/store";
 
-const CartCard = () => {
+const CartCard: React.FC<CartItem> = ({
+    uid,
+    quantity,
+    price,
+    color,
+    size,
+}) => {
     const [checked, setChecked] = useState(false);
-    const [count, setCount] = useState(1);
+    
+    const cartItems = useSelector((state: RootState) => state.cart.items);
+    const dispatch = useDispatch()
+    
+    const [count, setCount] = useState(cartItems.find(item => item.uid === uid)?.quantity);
 
-    const increment = () => setCount(count + 1);
-    const decrement = () => setCount(count > 0 ? count - 1 : 0);
-    const handleDelete = (index: number) => {
-        // Remove item from cart
+    const increment = () => {
+        console.log(count);
+        dispatch(
+            addItem({
+                uid,
+                price,
+                quantity,
+                color,
+                size,
+            })
+        );
+    };
+    const decrement = () => {
+        dispatch(removeItem(uid));
+    };
+    const handleDelete = () => {
+        dispatch(clearItem(uid));
     };
     return (
         <div
@@ -16,7 +42,13 @@ const CartCard = () => {
             ${checked ? "border-r-2 border-b-2 border-primary-color" : ""}
             rounded-[15px] bg-light-color-15 w-full p-5`}
         >
-            <label className={`relative w-[18px] h-[18px] ${checked ? "bg-primary-color" : "border-2 border-primary-color"} rounded-[5px]`}>
+            <label
+                className={`relative w-[18px] h-[18px] ${
+                    checked
+                        ? "bg-primary-color"
+                        : "border-2 border-primary-color"
+                } rounded-[5px]`}
+            >
                 <input
                     type="checkbox"
                     checked={checked}
@@ -43,7 +75,7 @@ const CartCard = () => {
             </div>
             <div className="flex flex-col">
                 <h2 className="text-xs font-semibold leading-[12px] text-light-color">
-                    Nike Dunk Low
+                Nike Dunk Low
                 </h2>
                 <span className="mt-[5px] text-[11px] text-light-color">
                     Размер: EU 35
@@ -67,7 +99,7 @@ const CartCard = () => {
                         </svg>
                     </button>
                     <span className="text-dark-color text-[8px] font-normal">
-                        {count}
+                        {cartItems.find(item => item.uid === uid)?.quantity}
                     </span>
                     <button onClick={increment}>
                         <svg
@@ -86,7 +118,7 @@ const CartCard = () => {
                 </div>
             </div>
             <button
-                onClick={() => handleDelete(1)}
+                onClick={() => handleDelete()}
                 className="absolute right-[20px] top-[15px]"
             >
                 <img src={DeleteIcon} alt="Delete" />

@@ -6,74 +6,92 @@ import CartIcon from "../assets/svg/green-cart.svg";
 import ModalMessage from "../components/ModalMessage";
 import ModalCard from "../components/ModalCard";
 import { Link } from "react-router-dom";
-import { getCatalog } from "../api/productApi";
 
-const shoeList = [
-    {
-        id: 1,
-        image: "/shoe-img.png",
-        name: "Nike DUNK LOW",
-        price: 9999,
-        type: "Кроссовки",
-        season: "Любой",
-    },
-    {
-        id: 2,
-        image: "/shoe-img.png",
-        name: "Nike Dunk SB Low Pro Dunk SB Low Pro",
-        price: 19999,
-        type: "Кроссовки",
-        season: "Любой",
-    },
-    {
-        id: 3,
-        image: "/shoe-img.png",
-        name: "Nike DUNK LOW",
-        price: 15999,
-        type: "Кроссовки",
-        season: "Любой",
-    },
-    {
-        id: 4,
-        image: "/shoe-img.png",
-        name: "Nike DUNK LOW",
-        price: 9999,
-        type: "Кроссовки",
-        season: "Любой",
-    },
-    {
-        id: 5,
-        image: "/shoe-img.png",
-        name: "Nike Dunk SB Low Pro",
-        price: 19999,
-        type: "Кроссовки",
-        season: "Любой",
-    },
-    {
-        id: 6,
-        image: "/shoe-img.png",
-        name: "Nike DUNK LOW",
-        price: 15999,
-        type: "Кроссовки",
-        season: "Любой",
-    },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../app/store";
+import { getCatalog } from "../api/productApi";
+import { setProducts } from "../app/slices/catalogSlice";
+import { CartItem, addItem } from "../app/slices/cartSlice";
+
+// const shoeList = [
+//     {
+//         id: 1,
+//         image: "/shoe-img.png",
+//         name: "Nike DUNK LOW",
+//         price: 9999,
+//         type: "Кроссовки",
+//         season: "Любой",
+//     },
+//     {
+//         id: 2,
+//         image: "/shoe-img.png",
+//         name: "Nike Dunk SB Low Pro Dunk SB Low Pro",
+//         price: 19999,
+//         type: "Кроссовки",
+//         season: "Любой",
+//     },
+//     {
+//         id: 3,
+//         image: "/shoe-img.png",
+//         name: "Nike DUNK LOW",
+//         price: 15999,
+//         type: "Кроссовки",
+//         season: "Любой",
+//     },
+//     {
+//         id: 4,
+//         image: "/shoe-img.png",
+//         name: "Nike DUNK LOW",
+//         price: 9999,
+//         type: "Кроссовки",
+//         season: "Любой",
+//     },
+//     {
+//         id: 5,
+//         image: "/shoe-img.png",
+//         name: "Nike Dunk SB Low Pro",
+//         price: 19999,
+//         type: "Кроссовки",
+//         season: "Любой",
+//     },
+//     {
+//         id: 6,
+//         image: "/shoe-img.png",
+//         name: "Nike DUNK LOW",
+//         price: 15999,
+//         type: "Кроссовки",
+//         season: "Любой",
+//     },
+// ];
 
 const HomePage: React.FC = () => {
-    const [modalCard, setModalCard] = useState<number | null>(null);
+    const [modalCard, setModalCard] = useState<string>("");
     const [notification, setNotification] = useState("");
-    const [products, setProducts] = useState([]);
 
-    const addToCart = () => {
+    const [loading, setLoading] = useState(false);
+
+    const dispatch = useDispatch();
+    const products = useSelector((state: RootState) => state.catalog.products);
+
+    const addToCart = ({ uid, price, quantity, color, size }: CartItem) => {
         setNotification("Товар добавлен в корзину!");
-        setModalCard(null);
+        setModalCard("");
+        dispatch(
+            addItem({
+                uid,
+                price,
+                quantity,
+                color,
+                size,
+            })
+        );
     };
 
-    const handleClick = (id: number) => {
-        if (modalCard === id) {
-            setModalCard(null);
+    const handleClick = (uid: string) => {
+        if (modalCard === uid) {
+            setModalCard("");
         } else {
-            setModalCard(id);
+            setModalCard(uid);
         }
     };
 
@@ -82,40 +100,46 @@ const HomePage: React.FC = () => {
         return () => clearTimeout(timer);
     }, [notification]);
 
-    // useEffect(() => {
-    //     const fetchCatalog = async () => {
-    //         try {
-    //             const catalogData = await getCatalog({ limit: 50 });
-    //             setProducts(catalogData);
-    //             console.log(catalogData);
-    //         } catch (error) {
-    //             console.error("Error fetching catalog:", error);
-    //         }
-    //     };
-
-    //     fetchCatalog();
-    // }, []);
+    useEffect(() => {
+        const fetchCatalog = async () => {
+            if (products.length === 0) {
+                setLoading(true);
+                try {
+                    const catalogData = await getCatalog({
+                        offset: 0,
+                        limit: 50,
+                    });
+                    dispatch(setProducts(catalogData));
+                } catch (error) {
+                    console.error("Error fetching catalog:", error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        fetchCatalog();
+    }, []);
 
     return (
         <main className="w-screen px-[25px] relative pb-36">
             {modalCard ? (
                 <ModalCard
-                    {...shoeList.filter((item) => item.id === 1)[0]}
+                    {...products.filter((item) => item.uid === modalCard)[0]}
                     handleClick={addToCart}
                     setModalCard={setModalCard}
                 />
-            ) : null} 
+            ) : null}
             {notification && (
                 <div className="animate-appear fixed z-10 top-12 inset-x-[25px]">
                     <ModalMessage title={notification} />
                 </div>
             )}
 
-            <div className="    h-[35px] bg-primary-color rounded-b-[15px] fixed top-0 inset-x-[25px]" />
+            <div className="h-[35px] bg-primary-color rounded-b-[15px] fixed top-0 inset-x-[25px]" />
             <div className="mt-[60px] grid grid-cols-2 gap-3 overflow-auto">
-                {shoeList.map((item) => (
+                {products.map((item) => (
                     <MainCard
-                        key={item.id}
+                        key={item.uid}
                         {...item}
                         handleClick={handleClick}
                     />
