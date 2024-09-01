@@ -30,8 +30,8 @@ const CartPage: React.FC = () => {
         <main className="w-screen px-[25px] relative pb-36">
             <div className="h-[35px] bg-primary-color rounded-b-[15px] fixed z-10 top-0 inset-x-[25px]" />
             <div className="flex flex-wrap gap-3 mt-[70px]">
-                {cartProducts.map((item) => (
-                    <CartCard key={item.uid} {...item} />
+                {cartProducts.map((item, index) => (
+                    <CartCard key={index} {...item} />
                 ))}
             </div>
             <div className="fixed z-10 bottom-40 right-6 animate-fadeTopBtn">

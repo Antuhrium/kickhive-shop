@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css/pagination";
@@ -6,83 +6,148 @@ import "swiper/css/pagination";
 import CartIcon from "../assets/svg/cart.svg";
 import { Product } from "../app/slices/catalogSlice";
 import { CartItem } from "../app/slices/cartSlice";
+import { getStylesCatalog, stylesCatalogType } from "../api/productApi";
+
+import Loader from "../assets/svg/tube-spinner.svg";
 
 interface ModalCardProps extends Product {
     handleClick: ({ uid, price, quantity, size, color }: CartItem) => void;
-    setModalCard: React.Dispatch<React.SetStateAction<string>>
+    setModalCard: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ModalCard: React.FC<ModalCardProps> = ({
     name,
     price,
-    season,
+    // season,
     type_,
     uid,
     brand,
     photos,
-    preview,
+    // preview,
     style,
     handleClick,
-    setModalCard
+    setModalCard,
 }) => {
-    const [color, setColor] = useState<number>(1);
-    const [size, setSize] = useState<number>(1);
+    const [stylesCatalog, setStylesCatalog] = useState<stylesCatalogType[]>([]);
+    const [photoLinks, setPhotosLinks] = useState<string[]>([]);
 
-    const colors = ["Синий", "Красный", "Белый", "Черный", "Фиол."];
-    const changeColorClick = (index: number) => {
-        setColor(index);
+    const [indexStyleCatalog, setIndexStyleCatalog] = useState<number>(0);
+
+    const [totalUid, setTotalUid] = useState<string>(uid);
+    const [totalStyle, setTotalStyle] = useState<string>(style);
+
+    const [color, setColor] = useState<string>("");
+    const [size, setSize] = useState<string>("");
+
+    const [sizeList, setSizeList] = useState<string[]>([]);
+    const [colorList, setColorList] = useState<string[]>([]);
+
+    const [loading, setLoading] = useState(false);
+
+    const changeColorClick = (color: string) => {
+        setColor(color);
     };
 
-    const sizes = [
-        "EU 35",
-        "EU 35",
-        "EU 35",
-        "EU 35",
-        "EU 35",
-        "EU 35",
-        "EU 35",
-        "EU 35",
-        "EU 35",
-        "EU 41",
-    ];
-    const changeSizeClick = (index: number) => {
-        setSize(index);
+    const changeSizeClick = (size: string) => {
+        setSize(size);
     };
+
+    useEffect(() => {
+        const fetchStyles = async () => {
+            try {
+                setLoading(true);
+                const styles = await getStylesCatalog(uid);
+                setStylesCatalog(styles);
+            } catch (error) {
+                console.error("Error fetching catalog:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStyles();
+    }, []);
+
+    useEffect(() => {
+        const style = stylesCatalog[0]?.sizes;
+        if (style && sizeList.length === 0) {
+            Object.entries(style).forEach(([key, value]) => {
+                if (value !== 0) {
+                    setSizeList((prev) => [...prev, key]);
+                }
+            });
+        }
+
+        stylesCatalog.forEach((style) => {
+            if (style.style && !colorList.includes(style.style)) {
+                setColorList((prev) => [...prev, style.style]);
+            }
+        });
+    }, [stylesCatalog]);
+
+    useEffect(() => {
+        setColor(colorList[0]);
+    }, [colorList]);
+
+    useEffect(() => {
+        stylesCatalog.forEach((style, index) => {
+            if (style.style === color) {
+                setTotalUid(style.uid);
+                setIndexStyleCatalog(index);
+                setTotalStyle(style.style);
+            }
+        });
+    }, [color]);
+
+    useEffect(() => {
+        if (photoLinks.length > 0) {
+            setPhotosLinks([]);
+        }
+        for (let i = 0; i <= photos - 1; i++) {
+            const photo = `${
+                import.meta.env.VITE_API_URL
+            }/get_product_photo?product_uid=${totalUid}&product_type=${type_}&product_brand=${brand}&product_photo_num=${i}`;
+
+            setPhotosLinks((prev) => [...prev, photo]);
+        }
+    }, [totalUid]);
 
     return (
         <>
-            <div className="fixed z-20 backdrop-blur-sm inset-0 bg-dark-color-10" onClick={() => setModalCard("")} />
+            <div
+                className="fixed z-20 backdrop-blur-sm inset-0 bg-dark-color-10"
+                onClick={() => setModalCard("")}
+            />
             <div className="fixed z-30 inset-x-[25px] top-1/2 -translate-y-1/2">
                 <div className="relative -mb-3">
                     <Swiper
                         className="h-[150px]"
-                        spaceBetween={10}
+                        spaceBetween={0}
                         slidesPerView={1}
                         modules={[Pagination]}
+                        loop={true}
                         pagination={{
+                            el: ".custom-pagination",
                             clickable: true,
-                            renderBullet: function (className) {
-                                return `<span class="${className} custom-bullet"></span>`;
-                            },
                         }}
                     >
-                        {[1, 2, 3, 4, 5].map((i) => (
+                        {photoLinks?.map((i, index) => (
                             <SwiperSlide
-                                key={i}
-                                className="bg-light-color rounded-[15px] border-b-2 border-primary-color max-h-[155px]"
+                                key={index}
+                                className="bg-light-color rounded-[15px] overflow-hidden border-b-2 border-primary-color max-h-[155px]"
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
                                 }}
                             >
-                                {/* <img src={image} alt={name} /> */}
+                                <img src={i} alt={""} />
                             </SwiperSlide>
                         ))}
                     </Swiper>
                 </div>
                 <div className="bg-dark-color-85 backdrop-blur-[10px] border border-primary-color px-[15px] pb-4 rounded-b-[20px]">
-                    <h2 className="text-xs font-semibold text-light-color mt-10">
+                    <div className="custom-pagination mt-5 w-3 h-3 flex justify-center items-center"></div>
+                    <h2 className="text-xs font-semibold text-light-color mt-[10px]">
                         {name}
                     </h2>
                     <div className="mt-3">
@@ -90,20 +155,28 @@ const ModalCard: React.FC<ModalCardProps> = ({
                             Расцветка:
                         </span>
                         <div className="mt-[5px] flex items-center gap-1 flex-wrap">
-                            {colors.map((item, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => changeColorClick(index)}
-                                    className={`min-w-[55px] min-h-[20px] flex items-center justify-center rounded-md
+                            {!loading ? (
+                                colorList.map((item, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => changeColorClick(item)}
+                                        className={`min-w-[55px] min-h-[20px] flex items-center justify-center rounded-md
                                     text-[8px] leading-[10px] text-center font-normal ${
-                                        color === index
+                                        color === item
                                             ? "bg-primary-color text-light-color"
                                             : "bg-light-color-60 text-light-color-60"
                                     }`}
-                                >
-                                    {item}
-                                </button>
-                            ))}
+                                    >
+                                        {item}
+                                    </button>
+                                ))
+                            ) : (
+                                <img
+                                    className="w-[20px] h-[20px]"
+                                    src={Loader}
+                                    alt="Loader"
+                                />
+                            )}
                         </div>
                     </div>
                     <div className="mt-2">
@@ -111,41 +184,69 @@ const ModalCard: React.FC<ModalCardProps> = ({
                             Размеры:
                         </span>
                         <div className="mt-[5px] flex items-center gap-1 flex-wrap">
-                            {sizes.map((item, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => changeSizeClick(index)}
-                                    className={`min-w-[55px] min-h-[20px] flex items-center justify-center rounded-md
+                            {!loading ? (
+                                sizeList?.map((item, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => changeSizeClick(item)}
+                                        className={`min-w-[55px] min-h-[20px] flex items-center justify-center rounded-md
                                     text-[8px] leading-[10px] text-center font-normal ${
-                                        size === index
+                                        size === item
                                             ? "bg-primary-color text-light-color"
                                             : "bg-light-color-60 text-light-color-60"
                                     }`}
-                                >
-                                    {item}
-                                </button>
-                            ))}
+                                    >
+                                        {item}
+                                    </button>
+                                ))
+                            ) : (
+                                <img
+                                    className="w-[20px] h-[20px]"
+                                    src={Loader}
+                                    alt="Loader"
+                                />
+                            )}
                         </div>
                     </div>
                     <div className="mt-2">
                         <span className="text-[11px] text-light-color font-normal">
                             Описание
                         </span>
+
+                        {!loading && stylesCatalog.length !== 0 ? (
+                            <>
+                                <div className="font-inter text-xs font-normal text-light-color-60">
+                                    Тип:{" "}
+                                    {
+                                        stylesCatalog[indexStyleCatalog]
+                                            .web_data.type_
+                                    }
+                                </div>
+                                <div className="font-inter text-xs font-normal text-light-color-60">
+                                    Сезон:{" "}
+                                    {
+                                        stylesCatalog[indexStyleCatalog]
+                                            .web_data.season
+                                    }
+                                </div>
+                            </>
+                        ) : (
+                            <img
+                                className="w-[20px] h-[20px]"
+                                src={Loader}
+                                alt="Loader"
+                            />
+                        )}
+
                         <div className="font-inter text-xs font-normal text-light-color-60">
-                            Тип: {type_}
+                            Стиль: {totalStyle}
                         </div>
-                        <div className="font-inter text-xs font-normal text-light-color-60">
-                            Сезон: {season}
-                        </div>
-                        <div className="font-inter text-xs font-normal text-light-color-60">
-                            Стиль: {style}
-                        </div>
-                        <div className="font-inter text-xs font-normal text-light-color-60">
+                        {/* <div className="font-inter text-xs font-normal text-light-color-60">
                             Высота каблука: Высокий каблук (5-8см)
                         </div>
                         <div className="font-inter text-xs font-normal text-light-color-60">
                             Материал: Микрофибра
-                        </div>
+                        </div> */}
                     </div>
                     <div className="mt-3 flex flex-col items-center">
                         <div className="flex items-center gap-3">
@@ -157,7 +258,15 @@ const ModalCard: React.FC<ModalCardProps> = ({
                             </span>
                         </div>
                         <button
-                            onClick={() => handleClick({uid, price, quantity: 1, color: colors[color], size: sizes[size]})}
+                            onClick={() =>
+                                handleClick({
+                                    uid,
+                                    price,
+                                    quantity: 1,
+                                    color: color,
+                                    size: size,
+                                })
+                            }
                             className="max-w-[160px] flex items-center justify-center gap-1 w-full py-2 mt-[5px]
                             text-light-color font-semibold text-[10px] bg-primary-color rounded-md"
                         >

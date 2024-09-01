@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import DeleteIcon from "../assets/svg/delete.svg";
-import { CartItem, addItem, clearItem, removeItem } from "../app/slices/cartSlice";
+import {
+    CartItem,
+    addItem,
+    clearItem,
+    removeItem,
+} from "../app/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
 
@@ -12,11 +17,13 @@ const CartCard: React.FC<CartItem> = ({
     size,
 }) => {
     const [checked, setChecked] = useState(false);
-    
+
     const cartItems = useSelector((state: RootState) => state.cart.items);
-    const dispatch = useDispatch()
-    
-    const [count, setCount] = useState(cartItems.find(item => item.uid === uid)?.quantity);
+    const dispatch = useDispatch();
+
+    const [count, setCount] = useState(
+        cartItems.find((item) => item.uid === uid)?.quantity
+    );
 
     const increment = () => {
         console.log(count);
@@ -75,13 +82,13 @@ const CartCard: React.FC<CartItem> = ({
             </div>
             <div className="flex flex-col">
                 <h2 className="text-xs font-semibold leading-[12px] text-light-color">
-                Nike Dunk Low
+                    Nike Dunk Low
                 </h2>
                 <span className="mt-[5px] text-[11px] text-light-color">
-                    Размер: EU 35
+                    Размер: {size}
                 </span>
                 <span className="mt-[10px] text-[10px] font-semibold text-primary-color">
-                    15 999 ₽
+                    {price} ₽
                 </span>
                 <div className="w-fit flex items-center gap-[6px] bg-primary-color rounded-full px-2 py-1 mt-[10px]">
                     <button onClick={decrement}>
@@ -99,7 +106,7 @@ const CartCard: React.FC<CartItem> = ({
                         </svg>
                     </button>
                     <span className="text-dark-color text-[8px] font-normal">
-                        {cartItems.find(item => item.uid === uid)?.quantity}
+                        {cartItems.find((item) => item.uid === uid)?.quantity}
                     </span>
                     <button onClick={increment}>
                         <svg

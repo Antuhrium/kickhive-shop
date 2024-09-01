@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import CartIcon from "../assets/svg/cart.svg";
 import { Product } from "../app/slices/catalogSlice";
@@ -12,16 +12,27 @@ const MainCard: React.FC<MainCardProps> = ({
     price,
     season,
     type_,
+    brand,
     uid,
     handleClick,
 }) => {
+    const [photo, setPhoto] = useState("");
+
+    useEffect(() => {
+        const photo = `${
+            import.meta.env.VITE_API_URL
+        }/get_product_photo?product_uid=${uid}&product_type=${type_}&product_brand=${brand}&product_photo_num=${0}`;
+
+        setPhoto(photo);
+    }, []);
+
     return (
         <div className="bg-light-color-15 rounded-[20px] flex flex-col justify-between">
             <div
                 className="bg-light-color border-primary-color border-b-2 border-r-2
-                    flex items-center justify-center rounded-[15px] w-full h-[155px]"
+                    flex items-center justify-center rounded-[15px] w-full h-[155px] overflow-hidden"
             >
-                {/* <img src={image} alt={name} /> */}
+                <img src={photo} alt={name} />
             </div>
             <h3 className="mx-0.5 mt-2 text-light-color font-semibold text-xs overflow-auto text-nowrap no-scroll">
                 {name}

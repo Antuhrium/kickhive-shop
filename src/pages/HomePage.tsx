@@ -9,60 +9,9 @@ import { Link } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
-import { getCatalog } from "../api/productApi";
+import { getCatalog, getStylesCatalog } from "../api/productApi";
 import { setProducts } from "../app/slices/catalogSlice";
 import { CartItem, addItem } from "../app/slices/cartSlice";
-
-// const shoeList = [
-//     {
-//         id: 1,
-//         image: "/shoe-img.png",
-//         name: "Nike DUNK LOW",
-//         price: 9999,
-//         type: "Кроссовки",
-//         season: "Любой",
-//     },
-//     {
-//         id: 2,
-//         image: "/shoe-img.png",
-//         name: "Nike Dunk SB Low Pro Dunk SB Low Pro",
-//         price: 19999,
-//         type: "Кроссовки",
-//         season: "Любой",
-//     },
-//     {
-//         id: 3,
-//         image: "/shoe-img.png",
-//         name: "Nike DUNK LOW",
-//         price: 15999,
-//         type: "Кроссовки",
-//         season: "Любой",
-//     },
-//     {
-//         id: 4,
-//         image: "/shoe-img.png",
-//         name: "Nike DUNK LOW",
-//         price: 9999,
-//         type: "Кроссовки",
-//         season: "Любой",
-//     },
-//     {
-//         id: 5,
-//         image: "/shoe-img.png",
-//         name: "Nike Dunk SB Low Pro",
-//         price: 19999,
-//         type: "Кроссовки",
-//         season: "Любой",
-//     },
-//     {
-//         id: 6,
-//         image: "/shoe-img.png",
-//         name: "Nike DUNK LOW",
-//         price: 15999,
-//         type: "Кроссовки",
-//         season: "Любой",
-//     },
-// ];
 
 const HomePage: React.FC = () => {
     const [modalCard, setModalCard] = useState<string>("");
@@ -137,9 +86,9 @@ const HomePage: React.FC = () => {
 
             <div className="h-[35px] bg-primary-color rounded-b-[15px] fixed top-0 inset-x-[25px]" />
             <div className="mt-[60px] grid grid-cols-2 gap-3 overflow-auto">
-                {products.map((item) => (
+                {products.map((item, index) => (
                     <MainCard
-                        key={item.uid}
+                        key={index}
                         {...item}
                         handleClick={handleClick}
                     />
