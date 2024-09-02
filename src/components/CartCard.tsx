@@ -5,9 +5,9 @@ interface CartCardProps {
     uid: string;
     preview: string;
     name: string;
-    brand: string;
-    type: string;
-    style: string;
+    brand?: string;
+    type?: string;
+    style?: string;
     price: number;
     size_data: {
         [size: string]: number;

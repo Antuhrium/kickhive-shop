@@ -27,7 +27,7 @@ const CartPage: React.FC = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [deliver, setDeliver] = useState<0 | 1>(0);
 
-    const [cartProducts, setCartProducts] = useState<cartProductsProps[]>([]);
+    const [cartProducts, setCartProducts] = useState<cartProductsProps>({});
 
     const [currentPrice, setCurrentPrice] = useState<number | string>();
 
@@ -66,8 +66,8 @@ const CartPage: React.FC = () => {
                 (total, product) => {
                     const productTotal = Object.entries(
                         product.size_data
-                    ).reduce((sum, [size, quantity]) => {
-                        return sum + product.price * quantity;
+                    ).reduce((sum, [_, quantity]) => {
+                        return sum + Number(product.price) * Number(quantity);
                     }, 0);
                     return total + productTotal;
                 },
