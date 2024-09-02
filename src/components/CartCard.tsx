@@ -1,48 +1,38 @@
 import React, { useState } from "react";
 import DeleteIcon from "../assets/svg/delete.svg";
-import {
-    CartItem,
-    addItem,
-    clearItem,
-    removeItem,
-} from "../app/slices/cartSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../app/store";
 
-const CartCard: React.FC<CartItem> = ({
+interface CartCardProps {
+    uid: string;
+    preview: string;
+    name: string;
+    brand: string;
+    type: string;
+    style: string;
+    price: number;
+    size_data: {
+        [size: string]: number;
+    };
+    handleDelete: ({
+        product_uid,
+        user_uid,
+    }: {
+        product_uid: string;
+        user_uid: string;
+    }) => void;
+}
+
+const CartCard: React.FC<CartCardProps> = ({
     uid,
-    quantity,
+    preview,
+    name,
+    // brand,
+    // type,
+    // style,
     price,
-    color,
-    size,
+    size_data,
+    handleDelete,
 }) => {
     const [checked, setChecked] = useState(false);
-
-    const cartItems = useSelector((state: RootState) => state.cart.items);
-    const dispatch = useDispatch();
-
-    const [count, setCount] = useState(
-        cartItems.find((item) => item.uid === uid)?.quantity
-    );
-
-    const increment = () => {
-        console.log(count);
-        dispatch(
-            addItem({
-                uid,
-                price,
-                quantity,
-                color,
-                size,
-            })
-        );
-    };
-    const decrement = () => {
-        dispatch(removeItem(uid));
-    };
-    const handleDelete = () => {
-        dispatch(clearItem(uid));
-    };
     return (
         <div
             className={`relative flex items-center gap-[15px]
@@ -77,20 +67,29 @@ const CartCard: React.FC<CartItem> = ({
                     </svg>
                 )}
             </label>
-            <div className="w-[90px] h-[90px] bg-light-color rounded-lg border-r-2 border-b-2 border-primary-color">
-                <img src="/shoe-img.png" alt="Shoe" />
+            <div className="max-w-[90px] max-h-[90px] bg-light-color rounded-lg border-r-2 border-b-2 border-primary-color overflow-hidden">
+                <img
+                    src={preview}
+                    alt={name}
+                    className="w-full h-full object-cover"
+                />
             </div>
             <div className="flex flex-col">
                 <h2 className="text-xs font-semibold leading-[12px] text-light-color">
                     Nike Dunk Low
                 </h2>
-                <span className="mt-[5px] text-[11px] text-light-color">
-                    Размер: {size}
+                <span className="mt-[5px] text-[11px] text-light-color flex flex-wrap gap-x-1">
+                    Размер:
+                    {Object.entries(size_data).map(([size, quantity]) => (
+                        <span>
+                            {size} - {quantity}
+                        </span>
+                    ))}
                 </span>
                 <span className="mt-[10px] text-[10px] font-semibold text-primary-color">
                     {price} ₽
                 </span>
-                <div className="w-fit flex items-center gap-[6px] bg-primary-color rounded-full px-2 py-1 mt-[10px]">
+                {/* <div className="w-fit flex items-center gap-[6px] bg-primary-color rounded-full px-2 py-1 mt-[10px]">
                     <button onClick={decrement}>
                         <svg
                             width="8"
@@ -106,7 +105,7 @@ const CartCard: React.FC<CartItem> = ({
                         </svg>
                     </button>
                     <span className="text-dark-color text-[8px] font-normal">
-                        {cartItems.find((item) => item.uid === uid)?.quantity}
+                        {quantity}
                     </span>
                     <button onClick={increment}>
                         <svg
@@ -122,10 +121,12 @@ const CartCard: React.FC<CartItem> = ({
                             />
                         </svg>
                     </button>
-                </div>
+                </div> */}
             </div>
             <button
-                onClick={() => handleDelete()}
+                onClick={() =>
+                    handleDelete({ product_uid: uid, user_uid: "54" })
+                }
                 className="absolute right-[20px] top-[15px]"
             >
                 <img src={DeleteIcon} alt="Delete" />

@@ -13,6 +13,7 @@ const MainCard: React.FC<MainCardProps> = ({
     season,
     type_,
     brand,
+    preview,
     uid,
     handleClick,
 }) => {

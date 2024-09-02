@@ -1,17 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CartIcon from "../assets/svg/cart.svg";
 
 import BackIcon from "../assets/svg/back.svg";
 import SupChatIcon from "../assets/svg/support-chat.svg";
 
-import CartCard from "../components/CartCard";
+// import CartCard from "../components/CartCard";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "../app/store";
+import { getCart, removeCartItem } from "../api/cartApi";
+import CartCard from "../components/CartCard";
+
+export interface cartProductsProps {
+    [uid: string]: {
+        preview: string;
+        name: string;
+        brand: string;
+        type: string;
+        style: string;
+        price: number;
+        size_data: {
+            [size: string]: number;
+        };
+    };
+}
 
 const CartPage: React.FC = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [deliver, setDeliver] = useState<0 | 1>(0);
+
+    const [cartProducts, setCartProducts] = useState<cartProductsProps[]>([]);
+
+    const [currentPrice, setCurrentPrice] = useState<number | string>();
 
     const navigate = useNavigate();
 
@@ -19,19 +37,57 @@ const CartPage: React.FC = () => {
         setDeliver(index);
     };
 
-    const cartProducts = useSelector((state: RootState) => state.cart.items);
+    const fetchCartProducts = async (user_uid: string) => {
+        try {
+            const res = await getCart({ user_uid });
+            setCartProducts(res);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+    useEffect(() => {
+        fetchCartProducts("54");
+    }, []);
 
-    let price = 0;
-    for (let i = 0; i < cartProducts.length; i++) {
-        price += cartProducts[i].price;
-    }
+    const handleDelete = async ({
+        product_uid,
+        user_uid,
+    }: {
+        product_uid: string;
+        user_uid: string;
+    }) => {
+        await removeCartItem({ product_uid, user_uid });
+        fetchCartProducts(user_uid);
+    };
+
+    useEffect(() => {
+        if (cartProducts) {
+            const totalSum = Object.values(cartProducts).reduce(
+                (total, product) => {
+                    const productTotal = Object.entries(
+                        product.size_data
+                    ).reduce((sum, [size, quantity]) => {
+                        return sum + product.price * quantity;
+                    }, 0);
+                    return total + productTotal;
+                },
+                0
+            );
+            setCurrentPrice(totalSum);
+        }
+    }, [cartProducts]);
 
     return (
         <main className="w-screen px-[25px] relative pb-36">
             <div className="h-[35px] bg-primary-color rounded-b-[15px] fixed z-10 top-0 inset-x-[25px]" />
             <div className="flex flex-wrap gap-3 mt-[70px]">
-                {cartProducts.map((item, index) => (
-                    <CartCard key={index} {...item} />
+                {Object.entries(cartProducts).map(([uid, product]) => (
+                    <CartCard
+                        key={uid}
+                        uid={uid}
+                        {...product}
+                        handleDelete={handleDelete}
+                    />
                 ))}
             </div>
             <div className="fixed z-10 bottom-40 right-6 animate-fadeTopBtn">
@@ -52,7 +108,7 @@ const CartPage: React.FC = () => {
             <div className="animate-fadeTop fixed bottom-0 inset-x-[25px] bg-[#262626] rounded-t-2xl px-[15px] py-5 border-2 border-primary-color border-b-0">
                 <div className="flex items-center gap-2 text-xs font-semibold text-light-color">
                     К Оплате:{" "}
-                    <span className="text-primary-color">{price} ₽</span>
+                    <span className="text-primary-color">{currentPrice} ₽</span>
                 </div>
                 <div className="mt-[7px] flex items-center justify-between gap-2 text-[11px] font-normal text-light-color leading-3 text-nowrap">
                     Контакт для связи:

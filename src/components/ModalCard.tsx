@@ -5,13 +5,12 @@ import "swiper/css/pagination";
 
 import CartIcon from "../assets/svg/cart.svg";
 import { Product } from "../app/slices/catalogSlice";
-import { CartItem } from "../app/slices/cartSlice";
 import { getStylesCatalog, stylesCatalogType } from "../api/productApi";
 
 import Loader from "../assets/svg/tube-spinner.svg";
 
 interface ModalCardProps extends Product {
-    handleClick: ({ uid, price, quantity, size, color }: CartItem) => void;
+    handleClick: ({ uid, size }: { uid: string; size: string }) => void;
     setModalCard: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -29,31 +28,10 @@ const ModalCard: React.FC<ModalCardProps> = ({
     setModalCard,
 }) => {
     const [stylesCatalog, setStylesCatalog] = useState<stylesCatalogType[]>([]);
-    const [photoLinks, setPhotosLinks] = useState<string[]>([]);
-
-    const [indexStyleCatalog, setIndexStyleCatalog] = useState<number>(0);
-
-    const [totalUid, setTotalUid] = useState<string>(uid);
-    const [totalStyle, setTotalStyle] = useState<string>(style);
-
-    const [color, setColor] = useState<string>("");
-    const [size, setSize] = useState<string>("");
-
-    const [sizeList, setSizeList] = useState<string[]>([]);
-    const [colorList, setColorList] = useState<string[]>([]);
-
     const [loading, setLoading] = useState(false);
 
-    const changeColorClick = (color: string) => {
-        setColor(color);
-    };
-
-    const changeSizeClick = (size: string) => {
-        setSize(size);
-    };
-
     useEffect(() => {
-        const fetchStyles = async () => {
+        const fetchStylesCatalog = async () => {
             try {
                 setLoading(true);
                 const styles = await getStylesCatalog(uid);
@@ -64,8 +42,28 @@ const ModalCard: React.FC<ModalCardProps> = ({
                 setLoading(false);
             }
         };
-        fetchStyles();
+        fetchStylesCatalog();
     }, []);
+
+    const [indexStyleCatalog, setIndexStyleCatalog] = useState<number>(0);
+    const [photoLinks, setPhotosLinks] = useState<string[]>([]);
+
+    const [currentUid, setСurrentUid] = useState<string>(uid);
+    const [сurrentStyle, setСurrentStyle] = useState<string>(style);
+
+    const [color, setColor] = useState<string>("");
+    const [size, setSize] = useState<string>("");
+
+    const [sizeList, setSizeList] = useState<string[]>([]);
+    const [colorList, setColorList] = useState<string[]>([]);
+
+    const changeColorClick = (color: string) => {
+        setColor(color);
+    };
+
+    const changeSizeClick = (size: string) => {
+        setSize(size);
+    };
 
     useEffect(() => {
         const style = stylesCatalog[0]?.sizes;
@@ -91,9 +89,9 @@ const ModalCard: React.FC<ModalCardProps> = ({
     useEffect(() => {
         stylesCatalog.forEach((style, index) => {
             if (style.style === color) {
-                setTotalUid(style.uid);
                 setIndexStyleCatalog(index);
-                setTotalStyle(style.style);
+                setСurrentUid(style.uid);
+                setСurrentStyle(style.style);
             }
         });
     }, [color]);
@@ -105,11 +103,20 @@ const ModalCard: React.FC<ModalCardProps> = ({
         for (let i = 0; i <= photos - 1; i++) {
             const photo = `${
                 import.meta.env.VITE_API_URL
-            }/get_product_photo?product_uid=${totalUid}&product_type=${type_}&product_brand=${brand}&product_photo_num=${i}`;
+            }/get_product_photo?product_uid=${currentUid}&product_type=${type_}&product_brand=${brand}&product_photo_num=${i}`;
 
             setPhotosLinks((prev) => [...prev, photo]);
         }
-    }, [totalUid]);
+        setSizeList([]);
+        const style = stylesCatalog[indexStyleCatalog]?.sizes;
+        if (style) {
+            Object.entries(style).forEach(([key, value]) => {
+                if (value !== 0) {
+                    setSizeList((prev) => [...prev, key]);
+                }
+            });
+        }
+    }, [currentUid]);
 
     return (
         <>
@@ -239,7 +246,7 @@ const ModalCard: React.FC<ModalCardProps> = ({
                         )}
 
                         <div className="font-inter text-xs font-normal text-light-color-60">
-                            Стиль: {totalStyle}
+                            Стиль: {сurrentStyle}
                         </div>
                         {/* <div className="font-inter text-xs font-normal text-light-color-60">
                             Высота каблука: Высокий каблук (5-8см)
@@ -260,10 +267,7 @@ const ModalCard: React.FC<ModalCardProps> = ({
                         <button
                             onClick={() =>
                                 handleClick({
-                                    uid,
-                                    price,
-                                    quantity: 1,
-                                    color: color,
+                                    uid: currentUid,
                                     size: size,
                                 })
                             }

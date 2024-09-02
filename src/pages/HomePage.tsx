@@ -9,31 +9,23 @@ import { Link } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
-import { getCatalog, getStylesCatalog } from "../api/productApi";
+import { getCatalog } from "../api/productApi";
 import { setProducts } from "../app/slices/catalogSlice";
-import { CartItem, addItem } from "../app/slices/cartSlice";
+import { addCartItem } from "../api/cartApi";
 
 const HomePage: React.FC = () => {
     const [modalCard, setModalCard] = useState<string>("");
     const [notification, setNotification] = useState("");
 
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
 
     const dispatch = useDispatch();
     const products = useSelector((state: RootState) => state.catalog.products);
 
-    const addToCart = ({ uid, price, quantity, color, size }: CartItem) => {
-        setNotification("Товар добавлен в корзину!");
+    const addToCart = async ({ uid, size }: { uid: string; size: string }) => {
+        await addCartItem({ user_uid: "54", product_uid: uid, size: size });
         setModalCard("");
-        dispatch(
-            addItem({
-                uid,
-                price,
-                quantity,
-                color,
-                size,
-            })
-        );
+        setNotification("Товар добавлен в корзину!");
     };
 
     const handleClick = (uid: string) => {
@@ -52,7 +44,7 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         const fetchCatalog = async () => {
             if (products.length === 0) {
-                setLoading(true);
+                // setLoading(true);
                 try {
                     const catalogData = await getCatalog({
                         offset: 0,
@@ -62,7 +54,7 @@ const HomePage: React.FC = () => {
                 } catch (error) {
                     console.error("Error fetching catalog:", error);
                 } finally {
-                    setLoading(false);
+                    // setLoading(false);
                 }
             }
         };
@@ -87,11 +79,7 @@ const HomePage: React.FC = () => {
             <div className="h-[35px] bg-primary-color rounded-b-[15px] fixed top-0 inset-x-[25px]" />
             <div className="mt-[60px] grid grid-cols-2 gap-3 overflow-auto">
                 {products.map((item, index) => (
-                    <MainCard
-                        key={index}
-                        {...item}
-                        handleClick={handleClick}
-                    />
+                    <MainCard key={index} {...item} handleClick={handleClick} />
                 ))}
             </div>
             <div className="animate-fadeBottomBtn fixed z-10 bottom-8 right-6">

@@ -49,30 +49,3 @@ export const getStylesCatalog = async (
     });
     return res.data.result;
 };
-
-// get_product_photo?product_uid=1zcB0Wd667Pab&product_type=sneakers&product_brand=Nike&product_photo_num=0
-// https://kickhive.shop/api/get_product_photo?product_uid=1zcB0Wd667Pab&product_type=sneakers&product_brand=Nike&product_photo_num=0
-export interface ProductPhotoType {
-    product_uid: string;
-    product_type: string;
-    product_brand: string;
-    product_photo_num: number;
-}
-
-export const getProductPhoto = async ({
-    product_uid,
-    product_type,
-    product_brand,
-    product_photo_num,
-}: ProductPhotoType) => {
-    const res = await axios.get("/get_product_photo", {
-        params: {
-            product_uid,
-            product_type,
-            product_brand,
-            product_photo_num,
-        },
-    });
-    console.log(res)
-    return res.data;
-};
