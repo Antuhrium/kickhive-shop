@@ -103,7 +103,7 @@ const ModalCard: React.FC<ModalCardProps> = ({
         for (let i = 0; i <= photos - 1; i++) {
             const photo = `${
                 import.meta.env.VITE_API_URL
-            }/get_product_photo?product_uid=${currentUid}&product_type=${type_}&product_brand=${brand}&product_photo_num=${i}`;
+            }get_product_photo?product_uid=${currentUid}&product_type=${type_}&product_brand=${brand}&product_photo_num=${i}`;
 
             setPhotosLinks((prev) => [...prev, photo]);
         }

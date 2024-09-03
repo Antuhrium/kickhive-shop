@@ -10,6 +10,11 @@ export interface Product {
     style: string;
     type_: string;
     uid: string;
+    web_data: {
+        description: string;
+        season: string;
+        type_: string;
+    };
 }
 
 interface CatalogState {
