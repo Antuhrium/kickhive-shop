@@ -32,14 +32,13 @@ const CartCard: React.FC<CartCardProps> = ({
     size_data,
     handleDelete,
 }) => {
-    const [checked, setChecked] = useState(false);
+    // const [checked, setChecked] = useState(false);
     return (
         <div
-            className={`relative flex items-center gap-[15px]
-            ${checked ? "border-r-2 border-b-2 border-primary-color" : ""}
+            className={`relative flex items-center gap-[15px] border-r-2 border-b-2 border-primary-color
             rounded-[15px] bg-light-color-15 w-full p-5`}
         >
-            <label
+            {/* <label
                 className={`relative w-[18px] h-[18px] ${
                     checked
                         ? "bg-primary-color"
@@ -66,7 +65,7 @@ const CartCard: React.FC<CartCardProps> = ({
                         />
                     </svg>
                 )}
-            </label>
+            </label> */}
             <div className="max-w-[90px] max-h-[90px] bg-light-color rounded-lg border-r-2 border-b-2 border-primary-color overflow-hidden">
                 <img
                     src={preview}
@@ -81,7 +80,7 @@ const CartCard: React.FC<CartCardProps> = ({
                 <span className="mt-[5px] text-[11px] text-light-color flex flex-wrap gap-x-1">
                     Размер:
                     {Object.entries(size_data).map(([size, quantity]) => (
-                        <span>
+                        <span key={`${size}-${quantity}`}>
                             {size} - {quantity}
                         </span>
                     ))}

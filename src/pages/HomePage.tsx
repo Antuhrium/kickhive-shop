@@ -12,6 +12,7 @@ import { RootState } from "../app/store";
 import { getCatalog } from "../api/productApi";
 import { setProducts } from "../app/slices/catalogSlice";
 import { addCartItem } from "../api/cartApi";
+import { initUtils } from "@telegram-apps/sdk-react";
 
 const HomePage: React.FC = () => {
     const [modalCard, setModalCard] = useState<string>("");
@@ -61,6 +62,8 @@ const HomePage: React.FC = () => {
         fetchCatalog();
     }, []);
 
+    const utils = initUtils();
+
     return (
         <main className="w-screen px-[25px] relative pb-36">
             {modalCard ? (
@@ -83,7 +86,14 @@ const HomePage: React.FC = () => {
                 ))}
             </div>
             <div className="animate-fadeBottomBtn fixed z-10 bottom-8 right-6">
-                <button className="menu-button">
+                <button
+                    className="menu-button"
+                    onClick={() =>
+                        utils.openTelegramLink(
+                            "https://t.me/kickhivebot?start=thp"
+                        )
+                    }
+                >
                     <img
                         src={SupChatIcon}
                         alt="Support chat"

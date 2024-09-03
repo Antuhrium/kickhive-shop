@@ -4,10 +4,13 @@ import CartIcon from "../assets/svg/cart.svg";
 import BackIcon from "../assets/svg/back.svg";
 import SupChatIcon from "../assets/svg/support-chat.svg";
 
-// import CartCard from "../components/CartCard";
 import { useNavigate } from "react-router-dom";
 import { getCart, removeCartItem } from "../api/cartApi";
 import CartCard from "../components/CartCard";
+import ModalDelivery from "../components/ModalDelivery";
+import { useBackButton, useUtils } from "@telegram-apps/sdk-react";
+import { useSelector } from "react-redux";
+import { RootState } from "../app/store";
 
 export interface cartProductsProps {
     [uid: string]: {
@@ -26,6 +29,7 @@ export interface cartProductsProps {
 const CartPage: React.FC = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [deliver, setDeliver] = useState<0 | 1>(0);
+    const [deliveryModal, setDeliveryModal] = useState(false);
 
     const [cartProducts, setCartProducts] = useState<cartProductsProps>({});
 
@@ -33,8 +37,20 @@ const CartPage: React.FC = () => {
 
     const navigate = useNavigate();
 
+    const backButton = useBackButton();
+
+    useEffect(() => {
+        backButton.show();
+        backButton.on("click", () => {
+            navigate(-1);
+        });
+    }, []);
+
     const handleDeliverChange = (index: 0 | 1) => {
         setDeliver(index);
+        if (index === 1 && !deliveryModal) {
+            setDeliveryModal(true);
+        }
     };
 
     const fetchCartProducts = async (user_uid: string) => {
@@ -48,6 +64,11 @@ const CartPage: React.FC = () => {
     useEffect(() => {
         fetchCartProducts("54");
     }, []);
+
+    const uid = useSelector((state: RootState) => state.user.uid);
+    console.log(uid);
+    
+
 
     const handleDelete = async ({
         product_uid,
@@ -77,8 +98,12 @@ const CartPage: React.FC = () => {
         }
     }, [cartProducts]);
 
+    const utils = useUtils();
+
     return (
         <main className="w-screen px-[25px] relative pb-36">
+            {deliveryModal && <ModalDelivery setModalCard={setDeliveryModal} />}
+
             <div className="h-[35px] bg-primary-color rounded-b-[15px] fixed z-10 top-0 inset-x-[25px]" />
             <div className="flex flex-wrap gap-3 mt-[70px]">
                 {Object.entries(cartProducts).map(([uid, product]) => (
@@ -91,7 +116,14 @@ const CartPage: React.FC = () => {
                 ))}
             </div>
             <div className="fixed z-10 bottom-40 right-6 animate-fadeTopBtn">
-                <button className="menu-button">
+                <button
+                    className="menu-button"
+                    onClick={() =>
+                        utils.openTelegramLink(
+                            "https://t.me/kickhivebot?start=thp"
+                        )
+                    }
+                >
                     <img
                         src={SupChatIcon}
                         alt="Support chat"

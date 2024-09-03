@@ -49,3 +49,8 @@ export const getStylesCatalog = async (
     });
     return res.data.result;
 };
+
+export const getDelivery = async () => {
+    const res = await axios.get("/get_delivery");
+    return res.data;
+};

@@ -10,7 +10,7 @@ export const getUser = async (user_id: number) => {
 };
 
 export const registerUser = async (user_uid: string) => {
-    const res = await axios.post("/add_can", null, {
+    const res = await axios.post("/register_can", null, {
         params: {
             user_uid,
         },
