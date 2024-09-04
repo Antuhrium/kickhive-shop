@@ -17,13 +17,10 @@ interface ModalCardProps extends Product {
 const ModalCard: React.FC<ModalCardProps> = ({
     name,
     price,
-    // season,
     type_,
     uid,
     brand,
     photos,
-    // preview,
-    style,
     handleClick,
     setModalCard,
 }) => {
@@ -48,14 +45,16 @@ const ModalCard: React.FC<ModalCardProps> = ({
     const [indexStyleCatalog, setIndexStyleCatalog] = useState<number>(0);
     const [photoLinks, setPhotosLinks] = useState<string[]>([]);
 
-    const [currentUid, setСurrentUid] = useState<string>(uid);
-    const [сurrentStyle, setСurrentStyle] = useState<string>(style);
+    const [currentUid, setCurrentUid] = useState<string>(uid);
+    // const [currentStyle, setCurrentStyle] = useState<string>(style);
 
-    const [color, setColor] = useState<string>("");
+    const [color, setColor] = useState("");
     const [size, setSize] = useState<string>("");
 
     const [sizeList, setSizeList] = useState<string[]>([]);
-    const [colorList, setColorList] = useState<string[]>([]);
+    const [colorList, setColorList] = useState<
+        { name: string; value: string }[]
+    >([]);
 
     const changeColorClick = (color: string) => {
         setColor(color);
@@ -76,22 +75,35 @@ const ModalCard: React.FC<ModalCardProps> = ({
         }
 
         stylesCatalog.forEach((style) => {
-            if (style.style && !colorList.includes(style.style)) {
-                setColorList((prev) => [...prev, style.style]);
-            }
+            style.web_data.forEach((item) => {
+                const is = colorList.find((color) => {
+                    return color.name === item.name;
+                });
+
+                if (item?.style && !is) {
+                    setColorList((prev) => [
+                        ...prev,
+                        { name: item.name, value: item.value },
+                    ]);
+                }
+            });
         });
     }, [stylesCatalog]);
 
     useEffect(() => {
-        setColor(colorList[0]);
+        if (colorList[0]?.name) {
+            setColor(colorList[0].name);
+        }
     }, [colorList]);
+
+    console.log(color, colorList);
 
     useEffect(() => {
         stylesCatalog.forEach((style, index) => {
             if (style.style === color) {
                 setIndexStyleCatalog(index);
-                setСurrentUid(style.uid);
-                setСurrentStyle(style.style);
+                setCurrentUid(style.uid);
+                // setCurrentStyle(style.style);
             }
         });
     }, [color]);
@@ -166,15 +178,17 @@ const ModalCard: React.FC<ModalCardProps> = ({
                                 colorList.map((item, index) => (
                                     <button
                                         key={index}
-                                        onClick={() => changeColorClick(item)}
+                                        onClick={() =>
+                                            changeColorClick(item.name)
+                                        }
                                         className={`min-w-[55px] min-h-[20px] flex items-center justify-center rounded-md
                                     text-[8px] leading-[10px] text-center font-normal ${
-                                        color === item
+                                        color === item.name
                                             ? "bg-primary-color text-light-color"
                                             : "bg-light-color-60 text-light-color-60"
                                     }`}
                                     >
-                                        {item}
+                                        {item.value}
                                     </button>
                                 ))
                             ) : (
@@ -221,22 +235,22 @@ const ModalCard: React.FC<ModalCardProps> = ({
                         </span>
 
                         {!loading && stylesCatalog.length !== 0 ? (
-                            <>
-                                <div className="font-inter text-xs font-normal text-light-color-60">
-                                    Тип:{" "}
-                                    {
-                                        stylesCatalog[indexStyleCatalog]
-                                            .web_data.type_
+                            <div className="flex flex-col">
+                                {stylesCatalog[indexStyleCatalog]?.web_data.map(
+                                    (data) => {
+                                        if (data.incard && !data.style) {
+                                            return (
+                                                <span
+                                                    key={`${data.value}-${data.name}`}
+                                                    className="font-inter text-xs text-light-color-60"
+                                                >
+                                                    {data.name} {data.value}
+                                                </span>
+                                            );
+                                        }
                                     }
-                                </div>
-                                <div className="font-inter text-xs font-normal text-light-color-60">
-                                    Сезон:{" "}
-                                    {
-                                        stylesCatalog[indexStyleCatalog]
-                                            .web_data.season
-                                    }
-                                </div>
-                            </>
+                                )}
+                            </div>
                         ) : (
                             <img
                                 className="w-[20px] h-[20px]"
@@ -245,14 +259,8 @@ const ModalCard: React.FC<ModalCardProps> = ({
                             />
                         )}
 
-                        <div className="font-inter text-xs font-normal text-light-color-60">
-                            Стиль: {сurrentStyle}
-                        </div>
                         {/* <div className="font-inter text-xs font-normal text-light-color-60">
-                            Высота каблука: Высокий каблук (5-8см)
-                        </div>
-                        <div className="font-inter text-xs font-normal text-light-color-60">
-                            Материал: Микрофибра
+                            Стиль: {currentStyle}
                         </div> */}
                     </div>
                     <div className="mt-3 flex flex-col items-center">
@@ -271,8 +279,13 @@ const ModalCard: React.FC<ModalCardProps> = ({
                                     size: size,
                                 })
                             }
-                            className="max-w-[160px] flex items-center justify-center gap-1 w-full py-2 mt-[5px]
-                            text-light-color font-semibold text-[10px] bg-primary-color rounded-md"
+                            className={`max-w-[160px] flex items-center justify-center gap-1 w-full py-2
+                                mt-[5px] text-light-color font-semibold text-[10px] rounded-md ${
+                                    sizeList.length === 0
+                                        ? "bg-light-color-60"
+                                        : "bg-primary-color"
+                                }`}
+                            disabled={sizeList.length === 0}
                         >
                             Заказать
                             <img src={CartIcon} alt="cart" />

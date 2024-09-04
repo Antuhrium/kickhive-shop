@@ -33,10 +33,12 @@ export interface stylesCatalogType {
     type_: string;
     uid: string;
     web_data: {
-        description: string;
-        season: string;
-        type_: string;
-    };
+        incard: boolean;
+        incatalog: boolean;
+        style?: boolean;
+        name: string;
+        value: string;
+    }[];
 }
 
 export const getStylesCatalog = async (

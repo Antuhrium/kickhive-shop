@@ -1,6 +1,6 @@
 import axios from "./axios";
 
-export const getCart = async ({ user_uid = "54" }) => {
+export const getCart = async (user_uid: string) => {
     const res = await axios.get("/get_can", {
         params: {
             user_uid,
@@ -15,7 +15,7 @@ export interface removeCartItemProps {
 }
 
 export const removeCartItem = async ({
-    user_uid = "54",
+    user_uid,
     product_uid,
 }: removeCartItemProps) => {
     const res = await axios.post("/remove_can", null, {
@@ -43,6 +43,23 @@ export const addCartItem = async ({
             user_uid,
             product_uid,
             size,
+        },
+    });
+    return res.data;
+};
+
+interface registerCart {
+    user_uid: string;
+    delivery_type: "home" | "point";
+    phone: string;
+}
+
+export const registerCart = async ({user_uid, delivery_type, phone}: registerCart) => {
+    const res = await axios.post("/register_can", null, {
+        params: {
+            user_uid,
+            delivery_type,
+            phone
         },
     });
     return res.data;

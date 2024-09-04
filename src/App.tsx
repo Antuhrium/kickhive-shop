@@ -6,15 +6,15 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "./app/store";
 import { useEffect } from "react";
 import { setUID } from "./app/slices/userSlice";
-import { getUser, registerUser } from "./api/userApi";
+import { getUser } from "./api/userApi";
 
 function App() {
     const viewPort = useViewport(false);
 
-    const dispatch = useDispatch<AppDispatch>();
     useEffect(() => {
         viewPort?.expand();
     }, [viewPort]);
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
         const getData = async () => {
@@ -24,8 +24,6 @@ function App() {
                 const initData = initInitData();
                 if (initData?.user?.id) {
                     const res = await getUser(initData.user.id);
-                    await registerUser(res.user_uid);
-
                     dispatch(setUID(res.user_uid));
                 }
             }

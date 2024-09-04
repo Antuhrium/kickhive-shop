@@ -10,11 +10,15 @@ export interface Product {
     style: string;
     type_: string;
     uid: string;
-    web_data: {
-        description: string;
-        season: string;
-        type_: string;
+    sizes?: {
+        [size: string]: number;
     };
+    web_data: {
+        incard: boolean;
+        incatalog: boolean;
+        name: string;
+        value: string;
+    }[];
 }
 
 interface CatalogState {

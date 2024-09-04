@@ -75,7 +75,7 @@ const CartCard: React.FC<CartCardProps> = ({
             </div>
             <div className="flex flex-col">
                 <h2 className="text-xs font-semibold leading-[12px] text-light-color">
-                    Nike Dunk Low
+                    {name}
                 </h2>
                 <span className="mt-[5px] text-[11px] text-light-color flex flex-wrap gap-x-1">
                     Размер:

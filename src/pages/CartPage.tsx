@@ -5,7 +5,7 @@ import BackIcon from "../assets/svg/back.svg";
 import SupChatIcon from "../assets/svg/support-chat.svg";
 
 import { useNavigate } from "react-router-dom";
-import { getCart, removeCartItem } from "../api/cartApi";
+import { getCart, registerCart, removeCartItem } from "../api/cartApi";
 import CartCard from "../components/CartCard";
 import ModalDelivery from "../components/ModalDelivery";
 import { useBackButton, useUtils } from "@telegram-apps/sdk-react";
@@ -28,16 +28,19 @@ export interface cartProductsProps {
 
 const CartPage: React.FC = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
-    const [deliver, setDeliver] = useState<0 | 1>(0);
+
+    const [delivery, setDeliver] = useState<"home" | "point">("home");
     const [deliveryModal, setDeliveryModal] = useState(false);
 
     const [cartProducts, setCartProducts] = useState<cartProductsProps>({});
 
     const [currentPrice, setCurrentPrice] = useState<number | string>();
+    const [validPhone, setValidPhone] = useState(true);
 
     const navigate = useNavigate();
-
     const backButton = useBackButton();
+
+    const user_uid = useSelector((state: RootState) => state.user.uid);
 
     useEffect(() => {
         backButton.show();
@@ -46,39 +49,59 @@ const CartPage: React.FC = () => {
         });
     }, []);
 
-    const handleDeliverChange = (index: 0 | 1) => {
-        setDeliver(index);
-        if (index === 1 && !deliveryModal) {
-            setDeliveryModal(true);
-        }
-    };
-
-    const fetchCartProducts = async (user_uid: string) => {
+    const fetchCartProducts = async () => {
         try {
-            const res = await getCart({ user_uid });
+            const res = await getCart(user_uid);
             setCartProducts(res);
         } catch (err) {
             console.log(err);
         }
     };
+
     useEffect(() => {
-        fetchCartProducts("54");
+        fetchCartProducts();
     }, []);
 
-    const uid = useSelector((state: RootState) => state.user.uid);
-    console.log(uid);
-    
-
-
-    const handleDelete = async ({
-        product_uid,
-        user_uid,
-    }: {
-        product_uid: string;
-        user_uid: string;
-    }) => {
+    const handleDelete = async ({ product_uid }: { product_uid: string }) => {
         await removeCartItem({ product_uid, user_uid });
-        fetchCartProducts(user_uid);
+        fetchCartProducts();
+    };
+
+    const handleDeliverChange = (name: "home" | "point") => {
+        setDeliver(name);
+        if (name === "point" && !deliveryModal) {
+            setDeliveryModal(true);
+        }
+    };
+
+    function validatePhoneNumber(phoneNumber: string) {
+        const pattern =
+            /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,4}$/;
+
+        return pattern.test(phoneNumber);
+    }
+
+    const handleOrder = async () => {
+        try {
+            if (validatePhoneNumber(phoneNumber)) {
+                await registerCart({
+                    user_uid,
+                    delivery_type: delivery,
+                    phone: phoneNumber,
+                });
+                fetchCartProducts();
+            } else {
+                setPhoneNumber("");
+                setValidPhone(false);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const phoneChange = (el: string) => {
+        setPhoneNumber(el);
+        setValidPhone(true);
     };
 
     useEffect(() => {
@@ -146,18 +169,27 @@ const CartPage: React.FC = () => {
                     Контакт для связи:
                     <input
                         type="tel"
-                        className="bg-light-color-15 p-1 rounded-[5px] font-inter text-[8px] leading-[8xp] w-[49%] outline-none text-light-color placeholder:text-light-color-60"
-                        placeholder="Введите номер телефона"
-                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        className={`bg-light-color-15 p-1 rounded-[5px] font-inter text-[8px] leading-[8xp] w-[49%] outline-none text-light-color
+                            ${
+                                validPhone
+                                    ? "placeholder:text-light-color-60"
+                                    : "placeholder:text-red-400"
+                            }`}
+                        placeholder={
+                            validPhone
+                                ? "Введите номер телефона"
+                                : "Введите правильный номер телефона"
+                        }
+                        onChange={(e) => phoneChange(e.target.value)}
                         value={phoneNumber}
                     />
                 </div>
                 <div className="flex gap-2 mt-[10px]">
                     <div className="flex flex-col gap-[5px] w-full">
                         <button
-                            onClick={() => handleDeliverChange(0)}
+                            onClick={() => handleDeliverChange("home")}
                             className={`${
-                                deliver === 0
+                                delivery === "home"
                                     ? "bg-primary-color text-light-color"
                                     : "bg-light-color-15 text-light-color-60"
                             }
@@ -166,9 +198,9 @@ const CartPage: React.FC = () => {
                             Доставка до адреса
                         </button>
                         <button
-                            onClick={() => handleDeliverChange(1)}
+                            onClick={() => handleDeliverChange("point")}
                             className={`${
-                                deliver === 1
+                                delivery === "point"
                                     ? "bg-primary-color text-light-color"
                                     : "bg-light-color-15 text-light-color-60"
                             }
@@ -178,8 +210,14 @@ const CartPage: React.FC = () => {
                         </button>
                     </div>
                     <button
-                        className="min-h-full w-full flex items-center gap-[5px] justify-center
-                        bg-primary-color rounded-[5px] text-[10px] font-semibold text-light-color"
+                        className={`min-h-full w-full flex items-center gap-[5px] justify-center
+                        rounded-[5px] text-[10px] font-semibold text-light-color ${
+                            phoneNumber.length === 0
+                                ? "bg-light-color-60"
+                                : "bg-primary-color"
+                        }`}
+                        disabled={phoneNumber.length === 0}
+                        onClick={handleOrder}
                     >
                         Оформить
                         <img src={CartIcon} alt="cart" />

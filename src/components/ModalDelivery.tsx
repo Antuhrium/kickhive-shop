@@ -41,12 +41,12 @@ const ModalDelivery: React.FC<ModalDelivery> = ({ setModalCard }) => {
             max-h-[90vh] min-h-[30vh] flex flex-col"
             >
                 <button
-                    className="absolute top-3 right-5 text-lg font-semibold text-light-color"
+                    className="absolute z-20 top-3 right-5 text-lg font-semibold text-light-color"
                     onClick={() => setModalCard(false)}
                 >
                     X
                 </button>
-                <div className="overflow-auto pb-4 no-scroll">
+                <div className="overflow-y-auto pb-4">
                     {Object.entries(deliveryData).map(([day, details]) => (
                         <div key={day} className="flex flex-col gap-1">
                             <span className="text-xs font-semibold text-light-color mt-4">

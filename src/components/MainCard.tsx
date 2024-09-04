@@ -16,6 +16,7 @@ const MainCard: React.FC<MainCardProps> = ({
     // preview,
     uid,
     web_data,
+    sizes,
     handleClick,
 }) => {
     const [photo, setPhoto] = useState("");
@@ -39,27 +40,39 @@ const MainCard: React.FC<MainCardProps> = ({
             >
                 <img src={photo} alt={name} />
             </div>
-            <h3 className="mx-0.5 mt-2 text-light-color font-semibold text-xs overflow-auto text-nowrap no-scroll">
+            <h3 className="mx-0.5 my-2 text-light-color font-semibold text-xs overflow-auto text-nowrap no-scroll">
                 {name}
             </h3>
-            <span className="mx-0.5 font-inter text-xs text-light-color-60 mt-1">
-                Тип: {web_data.type_}
-            </span>
-            <div className="px-0.5 flex items-center justify-between">
-                <span className="font-inter text-xs text-light-color-60">
-                    Сезон: {web_data.season}
-                </span>
-                <span className="text-primary-color font-semibold text-[10px]">
+            {web_data.map((data) => {
+                if (data.incatalog) {
+                    return (
+                        <span
+                            key={`${data.value}-${data.name}`}
+                            className="mx-0.5 font-inter text-xs text-light-color-60 mt-1"
+                        >
+                            {data.name} {data.value}
+                        </span>
+                    );
+                }
+            })}
+            <div className="relative">
+                <span className="absolute right-0.5 -top-3.5 text-right text-primary-color font-semibold text-[10px]">
                     {price} ₽
                 </span>
+                <button
+                    className={`flex items-center justify-center gap-1 w-full py-2 mt-[5px]
+                    text-light-color font-semibold text-[10px] rounded-md ${
+                        sizes && sizes.length === 0
+                            ? "bg-light-color-60"
+                            : "bg-primary-color"
+                    }
+                    `}
+                    disabled={sizes && sizes.length === 0}
+                >
+                    Заказать
+                    <img src={CartIcon} alt="cart" />
+                </button>
             </div>
-            <button
-                className="flex items-center justify-center gap-1 w-full py-2 mt-[5px]
-                    text-light-color font-semibold text-[10px] bg-primary-color rounded-md"
-            >
-                Заказать
-                <img src={CartIcon} alt="cart" />
-            </button>
         </div>
     );
 };

@@ -8,12 +8,3 @@ export const getUser = async (user_id: number) => {
     });
     return res.data;
 };
-
-export const registerUser = async (user_uid: string) => {
-    const res = await axios.post("/register_can", null, {
-        params: {
-            user_uid,
-        },
-    });
-    return res.data;
-};

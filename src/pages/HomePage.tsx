@@ -12,7 +12,7 @@ import { RootState } from "../app/store";
 import { getCatalog } from "../api/productApi";
 import { setProducts } from "../app/slices/catalogSlice";
 import { addCartItem } from "../api/cartApi";
-import { initUtils } from "@telegram-apps/sdk-react";
+import { initUtils, useBackButton } from "@telegram-apps/sdk-react";
 
 const HomePage: React.FC = () => {
     const [modalCard, setModalCard] = useState<string>("");
@@ -22,9 +22,10 @@ const HomePage: React.FC = () => {
 
     const dispatch = useDispatch();
     const products = useSelector((state: RootState) => state.catalog.products);
+    const user_uid = useSelector((state: RootState) => state.user.uid);
 
     const addToCart = async ({ uid, size }: { uid: string; size: string }) => {
-        await addCartItem({ user_uid: "54", product_uid: uid, size: size });
+        await addCartItem({ user_uid, product_uid: uid, size: size });
         setModalCard("");
         setNotification("Товар добавлен в корзину!");
     };
@@ -62,7 +63,13 @@ const HomePage: React.FC = () => {
         fetchCatalog();
     }, []);
 
+    const backButton = useBackButton();
     const utils = initUtils();
+
+    useEffect(() => {
+        backButton.hide();
+    }, []);
+
 
     return (
         <main className="w-screen px-[25px] relative pb-36">
