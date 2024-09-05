@@ -45,12 +45,13 @@ const HomePage: React.FC = () => {
 
     useEffect(() => {
         const fetchCatalog = async () => {
-            if (products.length === 0) {
+            if (products.length === 0 && user_uid) {
                 // setLoading(true);
                 try {
                     const catalogData = await getCatalog({
                         offset: 0,
                         limit: 50,
+                        user_uid,
                     });
                     dispatch(setProducts(catalogData));
                 } catch (error) {
@@ -61,7 +62,7 @@ const HomePage: React.FC = () => {
             }
         };
         fetchCatalog();
-    }, []);
+    }, [user_uid]);
 
     const backButton = useBackButton();
     const utils = initUtils();
@@ -69,7 +70,6 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         backButton.hide();
     }, []);
-
 
     return (
         <main className="w-screen px-[25px] relative pb-36">

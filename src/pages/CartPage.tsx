@@ -11,6 +11,7 @@ import ModalDelivery from "../components/ModalDelivery";
 import { useBackButton, useUtils } from "@telegram-apps/sdk-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
+import ModalDeliveryInfo from "../components/ModalDeliveryInfo";
 
 export interface cartProductsProps {
     [uid: string]: {
@@ -31,10 +32,11 @@ const CartPage: React.FC = () => {
 
     const [delivery, setDeliver] = useState<"home" | "point">("home");
     const [deliveryModal, setDeliveryModal] = useState(false);
+    const [deliveryInfoModal, setDeliveryInfoModal] = useState(false);
 
     const [cartProducts, setCartProducts] = useState<cartProductsProps>({});
 
-    const [currentPrice, setCurrentPrice] = useState<number | string>();
+    const [currentPrice, setCurrentPrice] = useState<number>(0);
     const [validPhone, setValidPhone] = useState(true);
 
     const navigate = useNavigate();
@@ -82,20 +84,24 @@ const CartPage: React.FC = () => {
     }
 
     const handleOrder = async () => {
-        try {
-            if (validatePhoneNumber(phoneNumber)) {
+        if (validatePhoneNumber(phoneNumber)) {
+            try {
                 await registerCart({
                     user_uid,
                     delivery_type: delivery,
                     phone: phoneNumber,
+                    pay_amount: currentPrice,
                 });
                 fetchCartProducts();
-            } else {
+            } catch (err) {
+                console.log(err);
+            } finally {
+                setDeliveryInfoModal(true);
                 setPhoneNumber("");
-                setValidPhone(false);
             }
-        } catch (err) {
-            console.log(err);
+        } else {
+            setPhoneNumber("");
+            setValidPhone(false);
         }
     };
 
@@ -126,6 +132,9 @@ const CartPage: React.FC = () => {
     return (
         <main className="w-screen px-[25px] relative pb-36">
             {deliveryModal && <ModalDelivery setModalCard={setDeliveryModal} />}
+            {deliveryInfoModal && (
+                <ModalDeliveryInfo onClose={setDeliveryInfoModal} />
+            )}
 
             <div className="h-[35px] bg-primary-color rounded-b-[15px] fixed z-10 top-0 inset-x-[25px]" />
             <div className="flex flex-wrap gap-3 mt-[70px]">
@@ -175,6 +184,7 @@ const CartPage: React.FC = () => {
                                     ? "placeholder:text-light-color-60"
                                     : "placeholder:text-red-400"
                             }`}
+                            
                         placeholder={
                             validPhone
                                 ? "Введите номер телефона"
@@ -212,11 +222,15 @@ const CartPage: React.FC = () => {
                     <button
                         className={`min-h-full w-full flex items-center gap-[5px] justify-center
                         rounded-[5px] text-[10px] font-semibold text-light-color ${
-                            phoneNumber.length === 0
+                            phoneNumber.length === 0 ||
+                            Object.keys(cartProducts).length === 0
                                 ? "bg-light-color-60"
                                 : "bg-primary-color"
                         }`}
-                        disabled={phoneNumber.length === 0}
+                        disabled={
+                            phoneNumber.length === 0 ||
+                            Object.keys(cartProducts).length === 0
+                        }
                         onClick={handleOrder}
                     >
                         Оформить

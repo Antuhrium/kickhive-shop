@@ -52,15 +52,27 @@ interface registerCart {
     user_uid: string;
     delivery_type: "home" | "point";
     phone: string;
+    pay_amount: number;
 }
 
-export const registerCart = async ({user_uid, delivery_type, phone}: registerCart) => {
+export const registerCart = async ({
+    user_uid,
+    delivery_type,
+    phone,
+    pay_amount,
+}: registerCart) => {
     const res = await axios.post("/register_can", null, {
         params: {
             user_uid,
             delivery_type,
-            phone
+            phone,
+            pay_amount,
         },
     });
+    return res.data;
+};
+
+export const getDeliveryInfo = async () => {
+    const res = await axios.get("/get_delivery_info");
     return res.data;
 };

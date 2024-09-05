@@ -1,10 +1,21 @@
 import axios from "./axios";
 
-export const getCatalog = async ({ offset = 0, limit = 50 }) => {
+interface getCatalogType {
+    offset: number;
+    limit: number;
+    user_uid: string;
+}
+
+export const getCatalog = async ({
+    offset,
+    limit,
+    user_uid,
+}: getCatalogType) => {
     const res = await axios.get("/get_catalog", {
         params: {
             offset,
             limit,
+            user_uid,
         },
     });
     return res.data.result;
@@ -41,12 +52,19 @@ export interface stylesCatalogType {
     }[];
 }
 
-export const getStylesCatalog = async (
-    product_uid: string
-): Promise<stylesCatalogType[]> => {
+interface getStylesCatalogTypes {
+    product_uid: string;
+    user_uid: string;
+}
+
+export const getStylesCatalog = async ({
+    product_uid,
+    user_uid,
+}: getStylesCatalogTypes): Promise<stylesCatalogType[]> => {
     const res = await axios.get("/get_styles_catalog", {
         params: {
             product_uid,
+            user_uid,
         },
     });
     return res.data.result;

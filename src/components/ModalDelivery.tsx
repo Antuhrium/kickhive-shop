@@ -41,7 +41,7 @@ const ModalDelivery: React.FC<ModalDelivery> = ({ setModalCard }) => {
             max-h-[90vh] min-h-[30vh] flex flex-col"
             >
                 <button
-                    className="absolute z-20 top-3 right-5 text-lg font-semibold text-light-color"
+                    className="absolute z-30 top-3 right-5 text-lg font-semibold text-light-color"
                     onClick={() => setModalCard(false)}
                 >
                     X

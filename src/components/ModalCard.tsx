@@ -8,6 +8,8 @@ import { Product } from "../app/slices/catalogSlice";
 import { getStylesCatalog, stylesCatalogType } from "../api/productApi";
 
 import Loader from "../assets/svg/tube-spinner.svg";
+import { useSelector } from "react-redux";
+import { RootState } from "../app/store";
 
 interface ModalCardProps extends Product {
     handleClick: ({ uid, size }: { uid: string; size: string }) => void;
@@ -27,11 +29,16 @@ const ModalCard: React.FC<ModalCardProps> = ({
     const [stylesCatalog, setStylesCatalog] = useState<stylesCatalogType[]>([]);
     const [loading, setLoading] = useState(false);
 
+    const user_uid = useSelector((state: RootState) => state.user.uid);
+
     useEffect(() => {
         const fetchStylesCatalog = async () => {
             try {
                 setLoading(true);
-                const styles = await getStylesCatalog(uid);
+                const styles = await getStylesCatalog({
+                    product_uid: uid,
+                    user_uid,
+                });
                 setStylesCatalog(styles);
             } catch (error) {
                 console.error("Error fetching catalog:", error);

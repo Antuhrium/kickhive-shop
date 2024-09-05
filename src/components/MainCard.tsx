@@ -31,7 +31,7 @@ const MainCard: React.FC<MainCardProps> = ({
 
     return (
         <div
-            className="bg-light-color-15 rounded-[20px] flex flex-col justify-between"
+            className="bg-light-color-15 rounded-[20px] flex flex-col"
             onClick={() => handleClick(uid)}
         >
             <div
@@ -43,19 +43,21 @@ const MainCard: React.FC<MainCardProps> = ({
             <h3 className="mx-0.5 my-2 text-light-color font-semibold text-xs overflow-auto text-nowrap no-scroll">
                 {name}
             </h3>
-            {web_data.map((data) => {
-                if (data.incatalog) {
-                    return (
-                        <span
-                            key={`${data.value}-${data.name}`}
-                            className="mx-0.5 font-inter text-xs text-light-color-60 mt-1"
-                        >
-                            {data.name} {data.value}
-                        </span>
-                    );
-                }
-            })}
-            <div className="relative">
+            <div className="flex flex-col items-start gap-px">
+                {web_data.map((data) => {
+                    if (data.incatalog) {
+                        return (
+                            <span
+                                key={`${data.value}-${data.name}`}
+                                className="mx-0.5 font-inter text-xs text-light-color-60"
+                            >
+                                {data.name} {data.value}
+                            </span>
+                        );
+                    }
+                })}
+            </div>
+            <div className="relative mt-auto">
                 <span className="absolute right-0.5 -top-3.5 text-right text-primary-color font-semibold text-[10px]">
                     {price} ₽
                 </span>
