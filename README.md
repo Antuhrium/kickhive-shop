@@ -1,3 +1,1 @@
-# To run this project
-npm install <br/>
-npm run dev
+# Telegram mini app with React TS
