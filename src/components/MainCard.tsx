@@ -38,7 +38,7 @@ const MainCard: React.FC<MainCardProps> = ({
                 className="bg-light-color border-primary-color border-b-2 border-r-2
                     flex items-center justify-center rounded-[15px] w-full h-[155px] overflow-hidden"
             >
-                <img src={photo} alt={name} />
+                <img src={photo} alt={name} className="object-cover h-full w-full" />
             </div>
             <h3 className="mx-0.5 my-2 text-light-color font-semibold text-xs overflow-auto text-nowrap no-scroll">
                 {name}

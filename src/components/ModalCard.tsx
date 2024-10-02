@@ -57,6 +57,7 @@ const ModalCard: React.FC<ModalCardProps> = ({
 
     const [color, setColor] = useState("");
     const [size, setSize] = useState<string>("");
+    const [currentPrice, setCurrentPrice] = useState<number | string>(price)
 
     const [sizeList, setSizeList] = useState<string[]>([]);
     const [colorList, setColorList] = useState<
@@ -103,13 +104,15 @@ const ModalCard: React.FC<ModalCardProps> = ({
         }
     }, [colorList]);
 
-    console.log(color, colorList);
+    // console.log(color, colorList);
 
     useEffect(() => {
         stylesCatalog.forEach((style, index) => {
             if (style.style === color) {
                 setIndexStyleCatalog(index);
                 setCurrentUid(style.uid);
+                setCurrentPrice(style.price)
+                console.log(style)
                 // setCurrentStyle(style.style);
             }
         });
@@ -144,9 +147,15 @@ const ModalCard: React.FC<ModalCardProps> = ({
                 onClick={() => setModalCard("")}
             />
             <div className="fixed z-30 inset-x-[25px] top-1/2 -translate-y-1/2">
+                <button
+                    onClick={() => setModalCard("")}
+                    className="absolute top-2 right-2 z-50 text-light-color h-8 w-8 rounded-full flex items-center justify-center bg-primary-color text-base"
+                >
+                        X
+                </button>
                 <div className="relative -mb-3">
                     <Swiper
-                        className="h-[150px]"
+                        className="h-[200px]"
                         spaceBetween={0}
                         slidesPerView={1}
                         modules={[Pagination]}
@@ -159,14 +168,14 @@ const ModalCard: React.FC<ModalCardProps> = ({
                         {photoLinks?.map((i, index) => (
                             <SwiperSlide
                                 key={index}
-                                className="bg-light-color rounded-[15px] overflow-hidden border-b-2 border-primary-color max-h-[155px]"
+                                className="bg-light-color rounded-[15px] overflow-hidden border-b-2 border-primary-color max-h-[205px]"
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
                                 }}
                             >
-                                <img src={i} alt={""} />
+                                <img src={i} alt={""} className=" object-cover w-full h-full" />
                             </SwiperSlide>
                         ))}
                     </Swiper>
@@ -188,7 +197,7 @@ const ModalCard: React.FC<ModalCardProps> = ({
                                         onClick={() =>
                                             changeColorClick(item.name)
                                         }
-                                        className={`min-w-[55px] min-h-[20px] flex items-center justify-center rounded-md
+                                        className={`min-w-[70px] min-h-[20px] flex items-center justify-center rounded-md
                                     text-[8px] leading-[10px] text-center font-normal ${
                                         color === item.name
                                             ? "bg-primary-color text-light-color"
@@ -276,7 +285,7 @@ const ModalCard: React.FC<ModalCardProps> = ({
                                 Стоимость:
                             </span>
                             <span className="text-primary-color text-[10px] font-semibold">
-                                {price} ₽
+                                {currentPrice} ₽
                             </span>
                         </div>
                         <button
