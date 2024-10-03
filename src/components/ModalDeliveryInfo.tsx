@@ -34,9 +34,9 @@ const ModalDeliveryInfo: React.FC<ModalDeliveryInfo> = ({ onClose }) => {
                 >
                     X
                 </button>
-                <h2 className="text-xs text-light-color">
+                <pre className="text-xs text-light-color whitespace-pre-wrap">
                     {info}
-                </h2>
+                </pre>
             </div>
         </>
     );
